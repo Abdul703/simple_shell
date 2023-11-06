@@ -8,9 +8,17 @@
 
 void handle_command(char *command, char *argenv[])
 {
-    char *command_splits = strtok(command, " ");
+    int i;
+    char *argv[MAX_COMMAND_LENGTH];
 
-    if (execve(command_splits[1], command_splits, NULL) == -1)
+    /* Create an array to store the command and its arguments. */
+    argv[0] = strtok(command, " ");
+    for (i = 1; i < (MAX_COMMAND_LENGTH - 1); i++)
+        argv[i] = strtok(NULL, " ");
+    argv[i] = NULL;
+
+
+    if (execve(argv[0], argv, argenv) == -1)
     {
         perror("error");
         exit(1);
