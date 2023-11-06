@@ -36,6 +36,8 @@ int main(int args, char *argv[], char *argenv[])
     char *command = NULL;
     char *newline;
     size_t command_length = 0;
+    pid_t child_process;
+    int status;
 
     printf("$ ");
 
@@ -47,9 +49,22 @@ int main(int args, char *argv[], char *argenv[])
         if (newline)
             *newline = '\0';
 
-        /* call function that handle command */
-        handle_command(command, argenv);
-
+        
+        child_process = fork();
+        if (child_process == -1)
+        {
+            perror("Error:");
+            exit(1);
+        }
+        if (child_process == 0)
+        {
+            handle_command(command, argenv);
+        }
+        else
+        {
+            wait(&status);
+        }
+        
         printf("$ ");
     }
 
