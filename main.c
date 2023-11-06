@@ -6,12 +6,16 @@
 #include <sys/wait.h>
 #include "main.h"
 
-void handle_command(char *command)
+void handle_command(char *command, char *argenv[])
 {
-    char *args[] = {"/bin/ls", "-l", NULL};
+    char *command_splits = strtok(command, " ");
 
-    execve(command, args, NULL);
-    fflush(stdout);
+    if (execve(command_splits[1], command_splits, NULL) == -1)
+    {
+        perror("error");
+        exit(1);
+    }
+
 }
 
 /**
@@ -19,31 +23,29 @@ void handle_command(char *command)
  *
  * Return: always 0 for success
 */
-int main()
+int main(int args, char *argv[], char *argenv[])
 {
     char *command = NULL;
     char *newline;
     size_t command_length = 0;
 
-    while (1)
+    printf("$ ");
+
+    while (getline(&command, &command_length, stdin) != -1)
     {
-        printf("$ ");
 
-        if (getline(&command, &command_length, stdin) == -1)
-        {
-            perror("getline");
-            exit(1);
-        }
-
-        /* remove newline */
+        /* replace newline with null terminator */
         newline = strchr(command, '\n');
         if (newline)
             *newline = '\0';
 
         /* call function that handle command */
-        handle_command(command);
+        handle_command(command, argenv);
+
+        printf("$ ");
     }
 
+    putchar('\n');
     free(command);
     return (0);
 }
