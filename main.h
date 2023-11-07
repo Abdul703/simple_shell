@@ -3,6 +3,6 @@
 
 #define MAX_COMMAND_LENGTH 1024
 
-void removeNewline(char *command);
+void handle_command(char *command, char *argenv[]);
 
 #endif
