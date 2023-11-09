@@ -36,6 +36,9 @@ int main(int args, char *argv[], char *argenv[])
 		if (newline)
 			*newline = '\0';
 
+        /* check if user typed exit */
+        if (strcmp(command, "exit") == 0)
+            break;
 
 		child_process = fork();
 		if (child_process == -1)
