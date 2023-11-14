@@ -21,10 +21,8 @@ int main(int args, char *argv[], char *argenv[])
 	char *command = NULL;
 	char *newline;
 	size_t command_length = 0;
-	pid_t child_process;
-	int status;
 	(void)args;
-        (void)argv;
+    (void)argv;
 
 	printf("$ ");
 
@@ -40,20 +38,7 @@ int main(int args, char *argv[], char *argenv[])
         if (strcmp(command, "exit") == 0)
             break;
 
-		child_process = fork();
-		if (child_process == -1)
-		{
-			perror("Error:");
-			exit(1);
-		}
-		if (child_process == 0)
-		{
-			handle_command(command, argenv);
-		}
-		else
-		{
-			wait(&status);
-		}
+		handle_command(command, argenv);
 
 		printf("$ ");
 	}
