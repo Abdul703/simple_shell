@@ -15,44 +15,63 @@
  *
  * Return: void
  */
-void handle_command(char *command, char *argenv[]) {
-    if (strchr(command, '/')) {
-        execute_full_path(command, argenv);
-    } else {
-        char *path = getenv("PATH");
-        char *path_copy = strdup(path);
-        char *directory = strtok(path_copy, ":");
-        char command_path[COMMAND_PATH_LENGTH];
+void handle_command(char *command, char *argenv[])
+{
+	if (strchr(command, '/'))
+	{
+		execute_full_path(command, argenv);
+	}
+	else
+	{
+		char *path = getenv("PATH");
+		char *path_copy = strdup(path);
+		char *directory = strtok(path_copy, ":");
+		char command_path[COMMAND_PATH_LENGTH];
 
-        while (directory != NULL) {
-            snprintf(command_path, sizeof(command_path), "%s/%s", directory, command);
+		while (directory != NULL)
+		{
+			snprintf(command_path, sizeof(command_path), "%s/%s", directory, command);
 
-            if (access(command_path, X_OK) != -1) {
-                execute_full_path(command, argenv);
-                free(path_copy);
-                return;
-            }
+			if (access(command_path, X_OK) != -1)
+			{
+				execute_full_path(command, argenv);
+				free(path_copy);
+				return;
+			}
 
-            directory = strtok(NULL, ":");
-        }
+			directory = strtok(NULL, ":");
+		}
 
-        free(path_copy);
-        printf("Command not found: %s\n", command);
-    }
+		free(path_copy);
+		printf("Command not found: %s\n", command);
+	}
 }
 
+/**
+ * execute_full_path - creating a child process for command execution
+ *
+ * @command: command to execute
+ * @argenv: environments variables
+ *
+ * Return: void
+ */
 void execute_full_path(char *command, char *argenv[])
 {
-    pid_t child_process = fork();
+	pid_t child_process = fork();
 
-    if (child_process == -1) {
-        perror("fork");
-        exit(1);
-    } else if (child_process == 0) {
-        process_command(command, argenv);
-    } else {
-        waitpid(child_process, NULL, 0);
-    }
+	if (child_process == -1)
+	{
+		perror("fork");
+		exit(1);
+	}
+	else if (child_process == 0)
+	{
+		process_command(command, argenv);
+	}
+	else
+	{
+		waitpid(child_process, NULL, 0);
+	}
 }
 
 
@@ -64,24 +83,29 @@ void execute_full_path(char *command, char *argenv[])
  *
  * Return: void
 */
-void process_command(char *command, char *argenv[]) {
-    int i;
-    char *argv[MAX_COMMAND_LENGTH];
+void process_command(char *command, char *argenv[])
+{
+	int i;
+	char *argv[MAX_COMMAND_LENGTH];
 
-    if (strcmp(command, "env") == 0) {
-        print_env(argenv);
-    } else {
-        /* Create an array to store the command and its arguments. */
-        argv[0] = strtok(command, " ");
-        for (i = 1; i < (MAX_COMMAND_LENGTH - 1); i++)
-            argv[i] = strtok(NULL, " ");
-        argv[i] = NULL;
+	if (strcmp(command, "env") == 0)
+	{
+		print_env(argenv);
+	}
+	else
+	{
+		/* Create an array to store the command and its arguments. */
+		argv[0] = strtok(command, " ");
+		for (i = 1; i < (MAX_COMMAND_LENGTH - 1); i++)
+			argv[i] = strtok(NULL, " ");
+		argv[i] = NULL;
 
-        if (execve(argv[0], argv, argenv) == -1) {
-            perror("execve");
-            exit(1);
-        }
-    }
+		if (execve(argv[0], argv, argenv) == -1)
+		{
+			perror("execve");
+			exit(1);
+		}
+	}
 }
 
 /**
@@ -91,11 +115,13 @@ void process_command(char *command, char *argenv[]) {
  *
  * Return: void
 */
-void print_env(char *argenv[]) {
-    int i = 0;
+void print_env(char *argenv[])
+{
+	int i = 0;
 
-    while (argenv[i] != NULL) {
-        printf("%s\n", argenv[i]);
-        i++;
-    }
+	while (argenv[i] != NULL)
+	{
+		printf("%s\n", argenv[i]);
+		i++;
+	}
 }
