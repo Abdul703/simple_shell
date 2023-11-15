@@ -6,7 +6,6 @@
 #include <sys/wait.h>
 #include "main.h"
 
-
 /**
  * main - Entry point
  *
@@ -18,33 +17,29 @@
 */
 int main(int args, char *argv[], char *argenv[])
 {
-	char *command = NULL;
-	char *newline;
-	size_t command_length = 0;
-	(void)args;
+    char *command = NULL;
+    char *newline;
+    size_t command_length = 0;
+    (void)args;
     (void)argv;
 
-	printf("$ ");
+    printf("$ ");
 
-	while (getline(&command, &command_length, stdin) != -1)
-	{
+    while (getline(&command, &command_length, stdin) != -1) {
+        newline = strchr(command, '\n');
+        if (newline)
+            *newline = '\0';
 
-		/* replace newline with null terminator */
-		newline = strchr(command, '\n');
-		if (newline)
-			*newline = '\0';
-
-        /* check if user typed exit */
+        /* Check if user typed exit */
         if (strcmp(command, "exit") == 0)
             break;
 
-		handle_command(command, argenv);
+        handle_command(command, argenv);
 
-		printf("$ ");
-	}
+        printf("$ ");
+    }
 
-	putchar('\n');
-	free(command);
-	return (0);
+    putchar('\n');
+    free(command);
+    return (0);
 }
-
