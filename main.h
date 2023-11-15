@@ -9,5 +9,6 @@
 void handle_command(char *command, char *argenv[]);
 void print_env(char *argenv[]);
 void process_command(char *command, char *argenv[]);
+void execute_full_path(char *command, char *argenv[]);
 
 #endif

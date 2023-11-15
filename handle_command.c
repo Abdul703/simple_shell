@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include "main.h"
 
+
 /**
  * handle_command - execute command
  *
@@ -15,36 +16,45 @@
  * Return: void
  */
 void handle_command(char *command, char *argenv[]) {
-    pid_t child_process;
-    char *path = getenv("PATH");
-    char *path_copy = strdup(path);
-    char *directory = strtok(path_copy, ":");
-    char command_path[COMMAND_PATH_LENGTH];
+    if (strchr(command, '/')) {
+        execute_full_path(command, argenv);
+    } else {
+        char *path = getenv("PATH");
+        char *path_copy = strdup(path);
+        char *directory = strtok(path_copy, ":");
+        char command_path[COMMAND_PATH_LENGTH];
 
-    while (directory != NULL) {
-        snprintf(command_path, sizeof(command_path), "%s/%s", directory, command);
+        while (directory != NULL) {
+            snprintf(command_path, sizeof(command_path), "%s/%s", directory, command);
 
-        if (access(command_path, X_OK) != -1) {
-            printf("Command found: %s\n", command_path);
-
-            child_process = fork();
-            if (child_process == -1) {
-                perror("fork");
-                exit(1);
-            } else if (child_process == 0) {
-                process_command(command, argenv);
-            } else {
-                waitpid(child_process, NULL, 0);
-                break;
+            if (access(command_path, X_OK) != -1) {
+                execute_full_path(command, argenv);
+                free(path_copy);
+                return;
             }
+
+            directory = strtok(NULL, ":");
         }
 
-        directory = strtok(NULL, ":");
+        free(path_copy);
+        printf("Command not found: %s\n", command);
     }
-
-    free(path_copy);
-    printf("Command not found: %s\n", command);
 }
+
+void execute_full_path(char *command, char *argenv[])
+{
+    pid_t child_process = fork();
+
+    if (child_process == -1) {
+        perror("fork");
+        exit(1);
+    } else if (child_process == 0) {
+        process_command(command, argenv);
+    } else {
+        waitpid(child_process, NULL, 0);
+    }
+}
+
 
 /**
  * process_command - process the command entered by user
