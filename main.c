@@ -23,7 +23,7 @@ int main(int args, char *argv[], char *argenv[])
 	(void)args;
 	(void)argv;
 
-	printf(":) ");
+	printf("$ ");
 
 	while (getline(&command, &command_length, stdin) != -1)
 	{
@@ -37,7 +37,7 @@ int main(int args, char *argv[], char *argenv[])
 
 		handle_command(command, argenv);
 
-		printf(":) ");
+		printf("$ ");
 	}
 
 	putchar('\n');
