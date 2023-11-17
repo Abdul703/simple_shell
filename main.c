@@ -17,30 +17,49 @@
 */
 int main(int args, char *argv[], char *argenv[])
 {
-	char *command = NULL;
-	char *newline;
-	size_t command_length = 0;
+	char command[MAX_COMMAND_LENGTH];
+	size_t len;
 	(void)args;
 	(void)argv;
 
-	printf("$ ");
-
-	while (getline(&command, &command_length, stdin) != -1)
+	while (1)
 	{
-		newline = strchr(command, '\n');
-		if (newline)
-			*newline = '\0';
+		printf("$ ");
+		fflush(stdout);
 
-		/* Check if user typed exit */
+		if (fgets(command, sizeof(command), stdin) == NULL)
+		{
+			perror("error");
+			exit(1);
+		}
+
+		len = strlen(command);
+
+		/* Remove the newline character */
+		if (len > 0 && command[len - 1] == '\n')
+		{
+			command[len - 1] = '\0';
+		}
+
 		if (strcmp(command, "exit") == 0)
+		{
 			break;
+		}
 
 		handle_command(command, argenv);
-
-		printf("$ ");
 	}
 
 	putchar('\n');
-	free(command);
 	return (0);
 }
+
+/**
+ * free_memory - free the allocated memory befor exiting
+ *
+ * Return: void
+ */
+void free_memory(void)
+{
+	/* Add any necessary cleanup code here */
+}
+

@@ -6,7 +6,6 @@
 #include <sys/wait.h>
 #include "main.h"
 
-
 /**
  * handle_command - execute command
  *
@@ -34,7 +33,7 @@ void handle_command(char *command, char *argenv[])
 
 			if (access(command_path, X_OK) != -1)
 			{
-				execute_full_path(command, argenv);
+				execute_full_path(command_path, argenv);
 				free(path_copy);
 				return;
 			}
@@ -67,13 +66,13 @@ void execute_full_path(char *command, char *argenv[])
 	else if (child_process == 0)
 	{
 		process_command(command, argenv);
+		exit(0);  /* Make sure child process exits after executing the command */
 	}
 	else
 	{
 		waitpid(child_process, NULL, 0);
 	}
 }
-
 
 /**
  * process_command - process the command entered by user
@@ -88,23 +87,22 @@ void process_command(char *command, char *argenv[])
 	int i;
 	char *argv[MAX_COMMAND_LENGTH];
 
-	if (strcmp(command, "env") == 0)
+	/* Create an array to store the command and its arguments. */
+	argv[0] = strtok(command, " ");
+	for (i = 1; i < (MAX_COMMAND_LENGTH - 1); i++)
 	{
-		print_env(argenv);
-	}
-	else
-	{
-		/* Create an array to store the command and its arguments. */
-		argv[0] = strtok(command, " ");
-		for (i = 1; i < (MAX_COMMAND_LENGTH - 1); i++)
-			argv[i] = strtok(NULL, " ");
-		argv[i] = NULL;
-
-		if (execve(argv[0], argv, argenv) == -1)
+		argv[i] = strtok(NULL, " ");
+		if (argv[i] == NULL)
 		{
-			perror("execve");
-			exit(1);
+			break;
 		}
+	}
+	argv[i] = NULL;
+
+	if (execve(argv[0], argv, argenv) == -1)
+	{
+		perror("execve");
+		exit(1);
 	}
 }
 
@@ -125,3 +123,4 @@ void print_env(char *argenv[])
 		i++;
 	}
 }
+
